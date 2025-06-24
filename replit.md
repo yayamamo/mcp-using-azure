@@ -94,8 +94,7 @@ The application follows a simple server-based architecture:
   - Built FastMCP server with search and fetch tools
   - Integrated OpenAI Vector Store search (vs_682552f3ab90819185d4b99adcae7a07)
   - Integrated OpenAI Vector Store file content retrieval for fetch tool
-  - Added fallback to local keyword search and local file storage for reliability
-  - Added 5 sample documents for testing fallback
+  - Removed all fallback mechanisms to use only OpenAI APIs
   - Implemented SSE transport for ChatGPT integration
   - Server successfully running on port 8000
   - All tools working and ready for ChatGPT Deep Research connection
@@ -107,8 +106,8 @@ Changelog:
 - June 24, 2025: Complete MCP server with vector store integration
   - FastMCP server with search/fetch tools
   - OpenAI Vector Store semantic search integration
-  - Fallback local search for reliability
-  - Sample knowledge base with 5 documents  
+  - OpenAI Vector Store file content retrieval
+  - Pure OpenAI API implementation (no fallbacks)
   - SSE transport enabled for ChatGPT integration
   - Comprehensive documentation and setup guide
 ```

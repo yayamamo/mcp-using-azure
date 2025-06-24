@@ -4,7 +4,7 @@ This is a sample Model Context Protocol (MCP) server designed to work with ChatG
 
 ## Features
 
-- **Search Tool**: Semantic search using OpenAI Vector Store API with fallback to local keyword search
+- **Search Tool**: Semantic search using OpenAI Vector Store API
 - **Fetch Tool**: Complete document retrieval by ID with full content and metadata
 - **SSE Transport**: Server-Sent Events transport for real-time communication with ChatGPT
 - **Sample Data**: Includes 5 sample documents covering various technical topics
@@ -58,14 +58,14 @@ The server will start on `http://0.0.0.0:8000` with SSE transport enabled.
 - **Input**: Search query string (natural language works best)
 - **Output**: List of matching documents from vector store with ID, title, and text snippet
 - **Usage**: ChatGPT will use this to find semantically relevant documents from your vector store
-- **Fallback**: Uses local keyword search if vector store is unavailable
+- **Requirements**: Requires valid OpenAI API key and vector store access
 
 #### Fetch Tool  
 - **Purpose**: Retrieve complete document content from OpenAI Vector Store or local storage
 - **Input**: File ID from vector store (file-xxx) or local document ID
 - **Output**: Full document content with complete text and metadata
 - **Usage**: ChatGPT will use this to get complete document content for detailed analysis and citations
-- **Integration**: Directly fetches content from vector store files using OpenAI API
+- **Requirements**: Requires valid file IDs from vector store search results
 
 ## Vector Store Integration
 
@@ -73,12 +73,7 @@ The server is configured to search vector store `vs_682552f3ab90819185d4b99adcae
 - Palantir 10-Q financial reports
 - Other documents uploaded to your OpenAI vector store
 
-The server also includes 5 local sample documents as fallback:
-- Machine Learning fundamentals
-- Python development best practices  
-- REST API design principles
-- Database optimization techniques
-- Cloud security fundamentals
+The server uses only OpenAI Vector Store APIs for both search and content retrieval - no local fallback data.
 
 ## Customization
 
@@ -86,7 +81,6 @@ The server also includes 5 local sample documents as fallback:
 
 1. **Update Vector Store ID**: Change `VECTOR_STORE_ID` in `main.py` to your vector store ID
 2. **Upload Documents**: Use OpenAI's API to upload documents to your vector store
-3. **Edit `sample_data.json`**: Replace the sample documents with your own content (used as fallback)
 2. **Document Structure**: Each document should include:
    ```json
    {
@@ -111,8 +105,8 @@ The server also includes 5 local sample documents as fallback:
 The search function in `main.py` can be customized for:
 - Different vector store IDs or multiple vector stores
 - Custom result filtering and ranking
-- Enhanced fallback search algorithms
 - Additional metadata processing from vector store results
+- Custom content snippet length and formatting
 
 ## Deployment
 
@@ -142,8 +136,7 @@ cloudflared tunnel --url http://localhost:8000
 This MCP server uses:
 - **FastMCP**: Simplified MCP protocol implementation
 - **Uvicorn**: ASGI server for HTTP/SSE transport
-- **OpenAI Vector Store**: Semantic search through OpenAI's API
-- **Fallback Storage**: In-memory document lookup from JSON data for redundancy
+- **OpenAI Vector Store**: Semantic search and content retrieval through OpenAI's API
 
 ## Troubleshooting
 
@@ -161,7 +154,7 @@ This MCP server uses:
 - Use curl to test the SSE endpoint: `curl http://localhost:8000/sse/`
 - Test OpenAI API key: `python -c "from openai import OpenAI; OpenAI().models.list()"`
 - Verify vector store exists: Check OpenAI dashboard or API
-- Verify JSON data format with a JSON validator for fallback data
+- Verify vector store contains documents and files
 
 ## Contributing
 
