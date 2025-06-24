@@ -93,7 +93,8 @@ The application follows a simple server-based architecture:
 - **June 24, 2025**: Created complete MCP server implementation
   - Built FastMCP server with search and fetch tools
   - Integrated OpenAI Vector Store search (vs_682552f3ab90819185d4b99adcae7a07)
-  - Added fallback to local keyword search for reliability
+  - Integrated OpenAI Vector Store file content retrieval for fetch tool
+  - Added fallback to local keyword search and local file storage for reliability
   - Added 5 sample documents for testing fallback
   - Implemented SSE transport for ChatGPT integration
   - Server successfully running on port 8000

@@ -151,12 +151,12 @@ def create_server():
         """
         Retrieve complete document content by ID for detailed analysis and citation.
         
-        This tool fetches the full document content including all metadata. Use this after
-        finding relevant documents with the search tool to get complete information for
-        analysis and proper citation.
+        This tool fetches the full document content from OpenAI Vector Store or local storage.
+        Use this after finding relevant documents with the search tool to get complete 
+        information for analysis and proper citation.
         
         Args:
-            id: Unique identifier of the document to retrieve
+            id: File ID from vector store (file-xxx) or local document ID
             
         Returns:
             Complete document with id, title, full text content, optional URL, and metadata
@@ -164,11 +164,61 @@ def create_server():
         Raises:
             ValueError: If the specified ID is not found
         """
-        if not id or id not in LOOKUP:
-            available_ids = list(LOOKUP.keys())[:5]  # Show first 5 IDs as examples
+        if not id:
+            raise ValueError("Document ID is required")
+        
+        # Check if this is a vector store file ID
+        if id.startswith("file-") and openai_client:
+            try:
+                logger.info(f"Fetching content from vector store for file ID: {id}")
+                
+                # Fetch file content from vector store
+                content_response = openai_client.vector_stores.files.content(
+                    vector_store_id=VECTOR_STORE_ID,
+                    file_id=id
+                )
+                
+                # Get file metadata
+                file_info = openai_client.vector_stores.files.retrieve(
+                    vector_store_id=VECTOR_STORE_ID,
+                    file_id=id
+                )
+                
+                # Extract content from paginated response
+                file_content = ""
+                if hasattr(content_response, 'data') and content_response.data:
+                    # Combine all content chunks from FileContentResponse objects
+                    content_parts = []
+                    for content_item in content_response.data:
+                        if hasattr(content_item, 'text'):
+                            content_parts.append(content_item.text)
+                    file_content = "\n".join(content_parts)
+                else:
+                    file_content = "No content available"
+                
+                result = {
+                    "id": id,
+                    "title": f"Document {id}",
+                    "text": file_content,
+                }
+                
+                # Add metadata if available from file info
+                if hasattr(file_info, 'attributes') and file_info.attributes:
+                    result["metadata"] = file_info.attributes
+                
+                logger.info(f"Successfully fetched vector store file: {id}")
+                return result
+                
+            except Exception as e:
+                logger.error(f"Failed to fetch from vector store: {e}")
+                # Fall through to local lookup
+        
+        # Fallback to local document lookup
+        if id not in LOOKUP:
+            available_ids = list(LOOKUP.keys())[:5]
             raise ValueError(
-                f"Document with ID '{id}' not found. "
-                f"Available IDs include: {available_ids}..."
+                f"Document with ID '{id}' not found in vector store or local storage. "
+                f"Available local IDs include: {available_ids}..."
             )
         
         document = LOOKUP[id].copy()
@@ -187,7 +237,7 @@ def create_server():
         if "metadata" in document and document["metadata"]:
             result["metadata"] = document["metadata"]
         
-        logger.info(f"Fetched document with ID: {id}")
+        logger.info(f"Fetched local document with ID: {id}")
         return result
 
     return mcp

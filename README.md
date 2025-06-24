@@ -61,10 +61,11 @@ The server will start on `http://0.0.0.0:8000` with SSE transport enabled.
 - **Fallback**: Uses local keyword search if vector store is unavailable
 
 #### Fetch Tool  
-- **Purpose**: Retrieve complete document content for detailed analysis
-- **Input**: Document ID from search results
-- **Output**: Full document with complete text, metadata, and optional URL for citations
-- **Usage**: ChatGPT will use this to get full content after finding relevant documents
+- **Purpose**: Retrieve complete document content from OpenAI Vector Store or local storage
+- **Input**: File ID from vector store (file-xxx) or local document ID
+- **Output**: Full document content with complete text and metadata
+- **Usage**: ChatGPT will use this to get complete document content for detailed analysis and citations
+- **Integration**: Directly fetches content from vector store files using OpenAI API
 
 ## Vector Store Integration
 
