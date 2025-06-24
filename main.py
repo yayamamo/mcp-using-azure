@@ -8,15 +8,24 @@ capabilities designed to work with ChatGPT's deep research feature.
 
 import json
 import logging
+import os
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 
 from fastmcp import FastMCP
 import uvicorn
+from openai import OpenAI
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# OpenAI configuration
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+VECTOR_STORE_ID = "vs_682552f3ab90819185d4b99adcae7a07"
+
+# Initialize OpenAI client
+openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 # Global data storage
 RECORDS: List[Dict[str, Any]] = []
@@ -62,15 +71,14 @@ def create_server():
     @mcp.tool()
     async def search(query: str) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Search for documents using keyword matching.
+        Search for documents using OpenAI Vector Store search.
         
-        This tool searches across document titles, content, and metadata to find relevant matches.
+        This tool searches through the vector store to find semantically relevant matches.
         Returns a list of search results with basic information. Use the fetch tool to get 
         complete document content.
         
         Args:
-            query: Search query string. Can include multiple keywords separated by spaces.
-                  All keywords will be matched against document content.
+            query: Search query string. Natural language queries work best for semantic search.
         
         Returns:
             Dictionary with 'results' key containing list of matching documents.
@@ -79,46 +87,64 @@ def create_server():
         if not query or not query.strip():
             return {"results": []}
         
-        # Tokenize query for keyword matching
-        query_tokens = query.lower().strip().split()
-        if not query_tokens:
-            return {"results": []}
+        if not openai_client:
+            logger.error("OpenAI client not initialized - API key missing")
+            # Fallback to local search if OpenAI unavailable
+            return await _fallback_local_search(query)
         
-        results = []
-        
-        for record in RECORDS:
-            # Create searchable text from all relevant fields
-            searchable_fields = [
-                record.get("title", ""),
-                record.get("text", ""),
-                record.get("content", ""),  # Additional content field
-            ]
+        try:
+            # Search the vector store using OpenAI API
+            logger.info(f"Searching vector store {VECTOR_STORE_ID} for query: '{query}'")
             
-            # Add metadata values to searchable content
-            metadata = record.get("metadata", {})
-            if isinstance(metadata, dict):
-                searchable_fields.extend(str(v) for v in metadata.values())
+            # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
+            # do not change this unless explicitly requested by the user
+            response = openai_client.vector_stores.search(
+                vector_store_id=VECTOR_STORE_ID,
+                query=query
+            )
             
-            # Combine all searchable text
-            searchable_text = " ".join(searchable_fields).lower()
+            results = []
             
-            # Check if any query token matches
-            if any(token in searchable_text for token in query_tokens):
-                # Create result with required fields
-                result = {
-                    "id": record["id"],
-                    "title": record.get("title", f"Document {record['id']}"),
-                    "text": record.get("text", record.get("content", ""))[:200] + "...",  # Snippet
-                }
-                
-                # Add optional URL if available
-                if "url" in record and record["url"]:
-                    result["url"] = record["url"]
-                
-                results.append(result)
-        
-        logger.info(f"Search query '{query}' returned {len(results)} results")
-        return {"results": results}
+            # Process the vector store search results
+            if hasattr(response, 'data') and response.data:
+                for i, item in enumerate(response.data):
+                    # Extract file_id, filename, and content from the VectorStoreSearchResponse
+                    item_id = getattr(item, 'file_id', f"vs_{i}")
+                    item_filename = getattr(item, 'filename', f"Document {i+1}")
+                    
+                    # Extract text content from the content array
+                    content_list = getattr(item, 'content', [])
+                    text_content = ""
+                    if content_list and len(content_list) > 0:
+                        # Get text from the first content item
+                        first_content = content_list[0]
+                        if hasattr(first_content, 'text'):
+                            text_content = first_content.text
+                        elif isinstance(first_content, dict):
+                            text_content = first_content.get('text', '')
+                    
+                    if not text_content:
+                        text_content = "No content available"
+                    
+                    # Create a snippet from content
+                    text_snippet = text_content[:200] + "..." if len(text_content) > 200 else text_content
+                    
+                    result = {
+                        "id": item_id,
+                        "title": item_filename,
+                        "text": text_snippet,
+                    }
+                    
+                    results.append(result)
+            
+            logger.info(f"Vector store search returned {len(results)} results")
+            return {"results": results}
+            
+        except Exception as e:
+            logger.error(f"Vector store search failed: {e}")
+            # Fallback to local search if vector store search fails
+            logger.info("Falling back to local keyword search")
+            return await _fallback_local_search(query)
 
     @mcp.tool()
     async def fetch(id: str) -> Dict[str, Any]:
@@ -165,6 +191,51 @@ def create_server():
         return result
 
     return mcp
+
+async def _fallback_local_search(query: str) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Fallback local search function when OpenAI vector store is unavailable.
+    """
+    # Tokenize query for keyword matching
+    query_tokens = query.lower().strip().split()
+    if not query_tokens:
+        return {"results": []}
+    
+    results = []
+    
+    for record in RECORDS:
+        # Create searchable text from all relevant fields
+        searchable_fields = [
+            record.get("title", ""),
+            record.get("text", ""),
+            record.get("content", ""),
+        ]
+        
+        # Add metadata values to searchable content
+        metadata = record.get("metadata", {})
+        if isinstance(metadata, dict):
+            searchable_fields.extend(str(v) for v in metadata.values())
+        
+        # Combine all searchable text
+        searchable_text = " ".join(searchable_fields).lower()
+        
+        # Check if any query token matches
+        if any(token in searchable_text for token in query_tokens):
+            # Create result with required fields
+            result = {
+                "id": record["id"],
+                "title": record.get("title", f"Document {record['id']}"),
+                "text": record.get("text", record.get("content", ""))[:200] + "...",
+            }
+            
+            # Add optional URL if available
+            if "url" in record and record["url"]:
+                result["url"] = record["url"]
+            
+            results.append(result)
+    
+    logger.info(f"Fallback search for '{query}' returned {len(results)} results")
+    return {"results": results}
 
 def main():
     """Main function to start the MCP server."""

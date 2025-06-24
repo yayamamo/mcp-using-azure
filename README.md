@@ -1,10 +1,10 @@
 # Sample MCP Server for ChatGPT Deep Research
 
-This is a sample Model Context Protocol (MCP) server designed to work with ChatGPT's Deep Research feature. It provides search and document retrieval capabilities for a sample knowledge base, demonstrating how to build custom MCP servers that can extend ChatGPT with company-specific knowledge and tools.
+This is a sample Model Context Protocol (MCP) server designed to work with ChatGPT's Deep Research feature. It provides semantic search through OpenAI's Vector Store API and document retrieval capabilities, demonstrating how to build custom MCP servers that can extend ChatGPT with company-specific knowledge and tools.
 
 ## Features
 
-- **Search Tool**: Keyword-based search across document titles, content, and metadata
+- **Search Tool**: Semantic search using OpenAI Vector Store API with fallback to local keyword search
 - **Fetch Tool**: Complete document retrieval by ID with full content and metadata
 - **SSE Transport**: Server-Sent Events transport for real-time communication with ChatGPT
 - **Sample Data**: Includes 5 sample documents covering various technical topics
@@ -15,16 +15,22 @@ This is a sample Model Context Protocol (MCP) server designed to work with ChatG
 - Python 3.8+
 - fastmcp (>=2.9.0)
 - uvicorn (>=0.34.3)
+- openai (Python SDK for vector store search)
 - pydantic (dependency of fastmcp)
 
 ## Installation
 
 1. Install the required dependencies:
 ```bash
-pip install fastmcp uvicorn
+pip install fastmcp uvicorn openai
 ```
 
-2. Run the MCP server:
+2. Set up your OpenAI API key:
+```bash
+export OPENAI_API_KEY="your-api-key-here"
+```
+
+3. Run the MCP server:
 ```bash
 python main.py
 ```
@@ -48,10 +54,11 @@ The server will start on `http://0.0.0.0:8000` with SSE transport enabled.
 ### Available Tools
 
 #### Search Tool
-- **Purpose**: Find relevant documents using keyword matching
-- **Input**: Search query string with keywords
-- **Output**: List of matching documents with ID, title, and text snippet
-- **Usage**: ChatGPT will use this to find relevant documents based on your research queries
+- **Purpose**: Find relevant documents using OpenAI Vector Store semantic search
+- **Input**: Search query string (natural language works best)
+- **Output**: List of matching documents from vector store with ID, title, and text snippet
+- **Usage**: ChatGPT will use this to find semantically relevant documents from your vector store
+- **Fallback**: Uses local keyword search if vector store is unavailable
 
 #### Fetch Tool  
 - **Purpose**: Retrieve complete document content for detailed analysis
@@ -59,9 +66,13 @@ The server will start on `http://0.0.0.0:8000` with SSE transport enabled.
 - **Output**: Full document with complete text, metadata, and optional URL for citations
 - **Usage**: ChatGPT will use this to get full content after finding relevant documents
 
-## Sample Data
+## Vector Store Integration
 
-The server includes 5 sample documents covering:
+The server is configured to search vector store `vs_682552f3ab90819185d4b99adcae7a07` which contains documents like:
+- Palantir 10-Q financial reports
+- Other documents uploaded to your OpenAI vector store
+
+The server also includes 5 local sample documents as fallback:
 - Machine Learning fundamentals
 - Python development best practices  
 - REST API design principles
@@ -70,9 +81,11 @@ The server includes 5 sample documents covering:
 
 ## Customization
 
-### Adding Your Own Data
+### Using Your Own Vector Store
 
-1. **Edit `sample_data.json`**: Replace the sample documents with your own content
+1. **Update Vector Store ID**: Change `VECTOR_STORE_ID` in `main.py` to your vector store ID
+2. **Upload Documents**: Use OpenAI's API to upload documents to your vector store
+3. **Edit `sample_data.json`**: Replace the sample documents with your own content (used as fallback)
 2. **Document Structure**: Each document should include:
    ```json
    {
@@ -95,10 +108,10 @@ The server includes 5 sample documents covering:
 ### Modifying Search Logic
 
 The search function in `main.py` can be customized for:
-- Advanced query parsing (e.g., boolean operators)
-- Relevance scoring and ranking
-- Fuzzy matching or semantic search
-- Custom filtering by metadata fields
+- Different vector store IDs or multiple vector stores
+- Custom result filtering and ranking
+- Enhanced fallback search algorithms
+- Additional metadata processing from vector store results
 
 ## Deployment
 
@@ -128,8 +141,8 @@ cloudflared tunnel --url http://localhost:8000
 This MCP server uses:
 - **FastMCP**: Simplified MCP protocol implementation
 - **Uvicorn**: ASGI server for HTTP/SSE transport
-- **In-Memory Storage**: Fast document lookup from JSON data
-- **Keyword Search**: Simple but effective text matching algorithm
+- **OpenAI Vector Store**: Semantic search through OpenAI's API
+- **Fallback Storage**: In-memory document lookup from JSON data for redundancy
 
 ## Troubleshooting
 
@@ -137,14 +150,17 @@ This MCP server uses:
 
 1. **Server won't start**: Check if port 8000 is already in use
 2. **ChatGPT can't connect**: Ensure the server URL is correct and accessible
-3. **No search results**: Check that your data is properly formatted in `sample_data.json`
-4. **Tools not appearing**: Verify the server is running and MCP protocol is working
+3. **No search results**: Verify your OpenAI API key and vector store ID are correct
+4. **Vector store errors**: Check that the vector store exists and contains documents
+5. **Tools not appearing**: Verify the server is running and MCP protocol is working
 
 ### Debugging
 
 - Check server logs for detailed error messages
 - Use curl to test the SSE endpoint: `curl http://localhost:8000/sse/`
-- Verify JSON data format with a JSON validator
+- Test OpenAI API key: `python -c "from openai import OpenAI; OpenAI().models.list()"`
+- Verify vector store exists: Check OpenAI dashboard or API
+- Verify JSON data format with a JSON validator for fallback data
 
 ## Contributing
 
