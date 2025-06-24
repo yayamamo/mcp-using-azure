@@ -1,0 +1,69 @@
+{
+  "records": [
+    {
+      "id": "doc_001",
+      "title": "Introduction to Machine Learning",
+      "text": "Machine learning is a subset of artificial intelligence that focuses on the development of algorithms and statistical models that enable computer systems to improve their performance on a specific task through experience.",
+      "content": "Machine learning is a subset of artificial intelligence (AI) that focuses on the development of algorithms and statistical models that enable computer systems to improve their performance on a specific task through experience. The core principle of machine learning is to build systems that can learn from data, identify patterns, and make decisions with minimal human intervention. There are three main types of machine learning: supervised learning, unsupervised learning, and reinforcement learning. Supervised learning uses labeled data to train models, unsupervised learning finds patterns in unlabeled data, and reinforcement learning learns through interaction with an environment.",
+      "url": "https://example.com/ml-intro",
+      "metadata": {
+        "category": "education",
+        "author": "Dr. Jane Smith",
+        "date": "2024-01-15",
+        "tags": "machine-learning,AI,algorithms"
+      }
+    },
+    {
+      "id": "doc_002",
+      "title": "Best Practices for Python Development",
+      "text": "Python development best practices include following PEP 8 style guidelines, writing comprehensive tests, using virtual environments, and implementing proper error handling.",
+      "content": "Python development best practices are essential for creating maintainable, readable, and efficient code. Key practices include following PEP 8 style guidelines for consistent formatting, writing comprehensive unit tests using frameworks like pytest or unittest, using virtual environments to manage dependencies, implementing proper error handling with try-except blocks, using type hints for better code documentation, following the DRY (Don't Repeat Yourself) principle, and documenting code with clear docstrings. Additionally, developers should use version control systems like Git, implement continuous integration, and regularly review and refactor code to maintain quality.",
+      "url": "https://example.com/python-best-practices",
+      "metadata": {
+        "category": "programming",
+        "author": "Alex Johnson",
+        "date": "2024-02-20",
+        "tags": "python,development,best-practices,coding"
+      }
+    },
+    {
+      "id": "doc_003",
+      "title": "Understanding REST API Design",
+      "text": "REST (Representational State Transfer) is an architectural style for designing networked applications, particularly web services. It relies on a stateless, client-server communication protocol.",
+      "content": "REST (Representational State Transfer) is an architectural style for designing networked applications, particularly web services. It relies on a stateless, client-server communication protocol, typically HTTP. REST APIs use standard HTTP methods (GET, POST, PUT, DELETE) to perform operations on resources identified by URLs. Key principles include statelessness (each request contains all necessary information), resource-based URLs, proper use of HTTP status codes, and uniform interface. Good REST API design involves clear resource naming, consistent response formats (usually JSON), proper error handling, versioning strategies, and comprehensive documentation. Security considerations include authentication, authorization, input validation, and rate limiting.",
+      "url": "https://example.com/rest-api-design",
+      "metadata": {
+        "category": "web-development",
+        "author": "Maria Garcia",
+        "date": "2024-03-10",
+        "tags": "REST,API,web-services,HTTP"
+      }
+    },
+    {
+      "id": "doc_004",
+      "title": "Database Optimization Techniques",
+      "text": "Database optimization involves various strategies to improve query performance, including proper indexing, query optimization, normalization, and efficient data types.",
+      "content": "Database optimization is crucial for maintaining high-performance applications as data volume grows. Key techniques include proper indexing strategies (creating indexes on frequently queried columns while avoiding over-indexing), query optimization (using EXPLAIN plans, avoiding SELECT *, optimizing JOIN operations), database normalization to reduce redundancy, choosing appropriate data types for storage efficiency, implementing connection pooling, using stored procedures for complex operations, partitioning large tables, and regular maintenance tasks like updating statistics and rebuilding indexes. Monitoring tools help identify bottlenecks and slow queries that need attention.",
+      "url": "https://example.com/database-optimization",
+      "metadata": {
+        "category": "database",
+        "author": "Robert Chen",
+        "date": "2024-03-25",
+        "tags": "database,optimization,performance,SQL"
+      }
+    },
+    {
+      "id": "doc_005",
+      "title": "Cloud Security Fundamentals",
+      "text": "Cloud security involves protecting data, applications, and infrastructure in cloud computing environments through various security measures and best practices.",
+      "content": "Cloud security encompasses the policies, technologies, applications, and controls utilized to protect virtualized IP, data, applications, services, and the associated infrastructure of cloud computing. It's a shared responsibility between cloud providers and customers. Key areas include identity and access management (IAM), data encryption at rest and in transit, network security with firewalls and VPNs, compliance monitoring, vulnerability management, incident response planning, and security auditing. Best practices include implementing zero-trust architecture, regular security assessments, automated security monitoring, proper backup and disaster recovery procedures, and staff training on cloud security awareness.",
+      "url": "https://example.com/cloud-security",
+      "metadata": {
+        "category": "security",
+        "author": "Sarah Wilson",
+        "date": "2024-04-05",
+        "tags": "cloud,security,cybersecurity,data-protection"
+      }
+    }
+  ]
+}
