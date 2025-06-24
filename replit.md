@@ -90,14 +90,14 @@ The application follows a simple server-based architecture:
 
 ## Recent Changes
 
-- **June 24, 2025**: Created complete MCP server implementation
-  - Built FastMCP server with search and fetch tools
-  - Integrated OpenAI Vector Store search (vs_682552f3ab90819185d4b99adcae7a07)
-  - Integrated OpenAI Vector Store file content retrieval for fetch tool
-  - Removed all fallback mechanisms to use only OpenAI APIs
-  - Implemented SSE transport for ChatGPT integration
-  - Server successfully running on port 8000
-  - All tools working and ready for ChatGPT Deep Research connection
+- **June 24, 2025**: Updated MCP server for ChatGPT Deep Research schema compliance
+  - Fixed tool output schemas to match exact ChatGPT Deep Research requirements
+  - Updated search tool to return proper URLs for citation support
+  - Modified fetch tool to use filename as title for better identification
+  - Changed server port from 8000 to 5000 to resolve port conflicts
+  - Ensured all required fields (id, title, text) are properly formatted
+  - Added proper URL generation for OpenAI file storage citations
+  - Server successfully running and ready for ChatGPT integration
 
 ## Changelog
 
