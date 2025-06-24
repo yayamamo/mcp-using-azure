@@ -22,7 +22,7 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pip install fastmcp uvicorn && python main.py"
-waitForPort = 5000
+waitForPort = 8000
 
 [[ports]]
 localPort = 5000

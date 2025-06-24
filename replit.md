@@ -90,14 +90,12 @@ The application follows a simple server-based architecture:
 
 ## Recent Changes
 
-- **June 24, 2025**: Updated MCP server for ChatGPT Deep Research schema compliance
-  - Fixed tool output schemas to match exact ChatGPT Deep Research requirements
-  - Updated search tool to return proper URLs for citation support
-  - Modified fetch tool to use filename as title for better identification
-  - Changed server port from 8000 to 5000 to resolve port conflicts
-  - Ensured all required fields (id, title, text) are properly formatted
-  - Added proper URL generation for OpenAI file storage citations
-  - Server successfully running and ready for ChatGPT integration
+- **June 24, 2025**: Fixed deployment port configuration mismatch
+  - Updated server port from 5000 back to 8000 to match deployment requirements
+  - Reconfigured workflow to expect port 8000 instead of 5000
+  - Resolved deployment failure caused by port forwarding mismatch
+  - Server now properly configured for Autoscale deployments on port 8000
+  - MCP server successfully running and ready for deployment
 
 ## Changelog
 
