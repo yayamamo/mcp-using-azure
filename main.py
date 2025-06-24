@@ -41,6 +41,8 @@ def create_server():
         tool to retrieve complete document content with citations.
         """)
 
+
+
     @mcp.tool()
     async def search(query: str) -> Dict[str, List[Dict[str, Any]]]:
         """
@@ -105,7 +107,7 @@ def create_server():
                     "id": item_id,
                     "title": item_filename,
                     "text": text_snippet,
-                    "url": item_id
+                    "url": f"https://platform.openai.com/storage/files/{item_id}"
                 }
 
                 results.append(result)
