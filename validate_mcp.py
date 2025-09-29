@@ -101,7 +101,7 @@ async def validate_mcp_server():
     try:
         import httpx
         async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get("http://0.0.0.0:8000/sse/")
+            response = await client.get("http://0.0.0.0:8800/sse/")
             if response.status_code == 200:
                 print("   ✓ SSE endpoint accessible")
             else:
