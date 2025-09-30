@@ -1,5 +1,15 @@
 # Sample MCP Server for ChatGPT Deep Research
 
+This is derived from https://replit.com/@kwhinnery-oai/DeepResearchServer?v=1#README.md, and modified to support Azure OpenAI APIs.
+You need:
+- AZURE_OPENAI_ENDPOINT
+- AZURE_OPENAI_API_KEY
+- AZURE_SEARCH_ENDPOINT
+- AZURE_SEARCH_API_KEY
+The modified version is `main_azure.py`, and `load_jsondata.py` is used to load `sample_data.json` to the Azure AI Search DB.
+In addition, `validate_mcp.py` can be used to test if the MCP server runs properly.
+Below is a copy from the original repository.
+---
 This is a sample Model Context Protocol (MCP) server designed to work with ChatGPT's Deep Research feature. It provides semantic search through OpenAI's Vector Store API and document retrieval capabilities, demonstrating how to build custom MCP servers that can extend ChatGPT with company-specific knowledge and tools.
 
 ## Features
