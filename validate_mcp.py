@@ -4,7 +4,7 @@ Validate MCP server functionality by testing the actual protocol methods
 """
 
 import asyncio
-import main
+import main_azure as main
 
 async def validate_mcp_server():
     """Complete validation of MCP server functionality"""
@@ -51,14 +51,23 @@ async def validate_mcp_server():
         search_functions = [f for name, f in server._tool_manager._tools.items() if name == "search"]
         if search_functions:
             # This simulates the MCP call
-            import main
+            #import main
             if main.openai_client:
-                # Test the underlying OpenAI API call
-                response = main.openai_client.vector_stores.search(
-                    vector_store_id=main.VECTOR_STORE_ID,
-                    query=search_query
+                embedding = main.get_embedding(search_query)
+                vector_query = main.VectorizedQuery(
+                    vector=embedding,
+                    k_nearest_neighbors=20,
+                    fields="content_vector",
                 )
-                print(f"   ✓ Search executed successfully, found {len(response.data)} results")
+                results_list = main.search_client.search(
+                    search_text=None,  # 純粋なベクトル検索
+                    vector_queries=[vector_query],
+                    select=["id", "title", "text", "url", "category", "author", "date"],
+                    top=20
+                )
+                result = [r for r in results_list][0]
+                reslut_id = result.get("id")
+                print(f"   ✓ Search executed successfully {result.get('id', 'N/A') if result else 'No results'}")
             else:
                 print("   ✗ OpenAI client not available")
         else:
@@ -71,22 +80,11 @@ async def validate_mcp_server():
     try:
         # Get a file ID from search results first
         if main.openai_client:
-            search_response = main.openai_client.vector_stores.search(
-                vector_store_id=main.VECTOR_STORE_ID,
-                query="test"
-            )
-            
-            if search_response.data:
-                file_id = search_response.data[0].file_id
-                
-                # Test fetch
-                content_response = main.openai_client.vector_stores.files.content(
-                    vector_store_id=main.VECTOR_STORE_ID,
-                    file_id=file_id
-                )
-                
-                if content_response.data:
-                    print(f"   ✓ Fetch executed successfully, retrieved {len(content_response.data[0].text)} characters")
+            # Test fetch
+            document = main.search_client.get_document(key=reslut_id)
+            if document:
+                if "content" in document:
+                    print(f"   ✓ Fetch executed successfully, retrieved {len(document['content'])} characters")
                 else:
                     print("   ✗ No content retrieved")
             else:
@@ -100,8 +98,8 @@ async def validate_mcp_server():
     print("\n4. Testing server accessibility...")
     try:
         import httpx
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get("http://0.0.0.0:8800/sse/")
+        async with httpx.AsyncClient(timeout=1.0) as client:
+            response = await client.get("http://0.0.0.0:8800/sse/", follow_redirects=True)
             if response.status_code == 200:
                 print("   ✓ SSE endpoint accessible")
             else:
