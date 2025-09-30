@@ -7,6 +7,9 @@ You need:
 - AZURE_SEARCH_ENDPOINT
 - AZURE_SEARCH_API_KEY
 
+These variables assumed to be written in the `.env` file at the directory where `main_azure.py` is.
+Please refer to [here](https://pypi.org/project/python-dotenv/) for more details.
+
 The modified version is `main_azure.py`, and `load_jsondata.py` is used to load `sample_data.json` to the Azure AI Search DB.
 In addition, `validate_mcp.py` can be used to test if the MCP server runs properly.
 
